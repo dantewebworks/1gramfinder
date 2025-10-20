@@ -1806,12 +1806,17 @@
         function updateSelectedNichesDisplay() {
             const selectedNichesList = document.getElementById('selectedNichesList');
             
-            if (selectedNiches.size === 0) {
+            const names = new Set();
+            selectedNiches.forEach(n => names.add(n.name));
+            if (typeof selectedNanoNiches !== 'undefined' && selectedNanoNiches instanceof Map) {
+                selectedNanoNiches.forEach(n => names.add(n.name));
+            }
+            
+            if (names.size === 0) {
                 selectedNichesList.textContent = 'None';
                 selectedNichesList.className = 'text-gray-500';
             } else {
-                const nicheNames = Array.from(selectedNiches.values()).map(n => n.name);
-                selectedNichesList.textContent = nicheNames.join(', ');
+                selectedNichesList.textContent = Array.from(names).join(', ');
                 selectedNichesList.className = 'text-blue-600 font-medium';
             }
         }
@@ -2187,7 +2192,20 @@
             const nicheSetOverride = options.nicheSetOverride || null;
             const sessionLabel = options.sessionLabel || null;
             
-            const effectiveSelectedNiches = nicheSetOverride || selectedNiches;
+            // Use override if provided; otherwise, merge both main and nano selections
+            let effectiveSelectedNiches = nicheSetOverride || null;
+            if (!effectiveSelectedNiches) {
+                effectiveSelectedNiches = new Map();
+                selectedNiches.forEach((val, key) => effectiveSelectedNiches.set(key, val));
+                if (typeof selectedNanoNiches !== 'undefined' && selectedNanoNiches instanceof Map) {
+                    selectedNanoNiches.forEach((val, key) => {
+                        if (!effectiveSelectedNiches.has(key)) {
+                            effectiveSelectedNiches.set(key, val);
+                        }
+                    });
+                }
+            }
+            
             if (effectiveSelectedNiches.size === 0) {
                 alert('Please select at least one niche');
                 return;
