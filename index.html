@@ -88,6 +88,26 @@
                 <p class="text-xs text-gray-500 mt-3">Click niches to toggle selection (multiple allowed), then click Search to run queries</p>
             </div>
 
+            <!-- Nano Banana Niches -->
+            <div id="nano-niche-selection" class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Nano Banana Niches</h2>
+                    <button id="nanoToggleBtn" class="text-xs bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">
+                        Collapse
+                    </button>
+                </div>
+                <div id="nanoNicheContent">
+                    <div class="nano-niche-buttons flex flex-wrap gap-2 mb-3">
+                        <!-- Nano Banana niches will be dynamically populated here -->
+                    </div>
+                    <div id="selectedNanoNiches" class="text-sm">
+                        <span class="font-medium text-gray-700">Selected Nano Niches:</span>
+                        <span id="selectedNanoNichesList" class="text-blue-600">None</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">Click a niche to auto-run searches across selected cities</p>
+                </div>
+            </div>
+
             <!-- Search Button -->
             <div class="text-center mb-6">
                 <button id="searchBtn" class="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition duration-200 text-lg font-semibold">
@@ -1427,6 +1447,32 @@
         let searchSessionCount = 0;
         let searchHistoryWithResults = []; // Holds all historical searches
         let selectedNiches = new Map();
+        let selectedNanoNiches = new Map();
+
+        // Nano Banana Niches dataset
+        const nanoBananaNiches = {
+            soapShops: {
+                name: 'Soap Shops',
+                variations: [
+                    'soap shop','soap business','handmade soap','natural soap brand','organic soap company',
+                    'soap store','artisanal soap','body soap brand','skin care soap'
+                ]
+            },
+            candleShops: {
+                name: 'Candle Shops',
+                variations: [
+                    'candle shop','candle business','handmade candles','scented candles','soy candles',
+                    'candle brand','home fragrance candles','candle store','luxury candles'
+                ]
+            },
+            bakeries: {
+                name: 'Bakeries',
+                variations: [
+                    'bakery','cake shop','cupcake shop','pastry shop','bakehouse',
+                    'dessert shop','bread bakery','wedding cakes','custom cakes'
+                ]
+            }
+        };
 
         // ========================================
         // DYNAMIC NICHE INITIALIZATION
@@ -1443,6 +1489,21 @@
                 `;
             });
             
+            container.innerHTML = html;
+        }
+
+        // Initialize Nano Banana niches
+        function initializeNanoBananaNiches() {
+            const container = document.querySelector('.nano-niche-buttons');
+            if (!container) return;
+            let html = '';
+            Object.entries(nanoBananaNiches).forEach(([key, niche]) => {
+                html += `
+                    <button id="nano-${key}Btn" data-nano-niche="${key}" class="nano-niche-btn bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200 text-sm">
+                        ${niche.name}
+                    </button>
+                `;
+            });
             container.innerHTML = html;
         }
 
@@ -1752,6 +1813,48 @@
                 const nicheNames = Array.from(selectedNiches.values()).map(n => n.name);
                 selectedNichesList.textContent = nicheNames.join(', ');
                 selectedNichesList.className = 'text-blue-600 font-medium';
+            }
+        }
+
+        // Nano Banana toggle functionality
+        function toggleNanoNiche(nicheKey) {
+            const niche = nanoBananaNiches[nicheKey];
+            if (!niche) return;
+
+            const button = document.querySelector(`[data-nano-niche="${nicheKey}"]`);
+
+            if (selectedNanoNiches.has(nicheKey)) {
+                selectedNanoNiches.delete(nicheKey);
+                if (button) {
+                    button.classList.remove('bg-blue-600', 'ring-2', 'ring-blue-400');
+                    button.classList.add('bg-gray-600');
+                }
+                console.log(`Deselected nano niche: ${niche.name}`);
+            } else {
+                selectedNanoNiches.set(nicheKey, niche);
+                if (button) {
+                    button.classList.remove('bg-gray-600');
+                    button.classList.add('bg-blue-600', 'ring-2', 'ring-blue-400');
+                }
+                console.log(`Selected nano niche: ${niche.name}`);
+                // Auto-run searches using only selected Nano Banana niches
+                performSearches({ nicheSetOverride: selectedNanoNiches, sessionLabel: 'Nano Banana Niches' });
+            }
+
+            updateSelectedNanoNichesDisplay();
+        }
+
+        function updateSelectedNanoNichesDisplay() {
+            const listEl = document.getElementById('selectedNanoNichesList');
+            if (!listEl) return;
+
+            if (selectedNanoNiches.size === 0) {
+                listEl.textContent = 'None';
+                listEl.className = 'text-gray-500';
+            } else {
+                const nicheNames = Array.from(selectedNanoNiches.values()).map(n => n.name);
+                listEl.textContent = nicheNames.join(', ');
+                listEl.className = 'text-blue-600 font-medium';
             }
         }
 
@@ -2069,7 +2172,7 @@
         // ========================================
         // MAIN SEARCH FUNCTION
         // ========================================
-        async function performSearches() {
+        async function performSearches(options = {}) {
             const apiKey = document.getElementById('apiKey').value.trim();
             const cx = document.getElementById('searchEngineId').value.trim();
             
@@ -2081,7 +2184,11 @@
             
             saveApiSettings();
             
-            if (selectedNiches.size === 0) {
+            const nicheSetOverride = options.nicheSetOverride || null;
+            const sessionLabel = options.sessionLabel || null;
+            
+            const effectiveSelectedNiches = nicheSetOverride || selectedNiches;
+            if (effectiveSelectedNiches.size === 0) {
                 alert('Please select at least one niche');
                 return;
             }
@@ -2118,7 +2225,7 @@
             const locationDisplayNames = [];
             const allNicheKeywords = [];
             
-            selectedNiches.forEach((niche, nicheKey) => {
+            effectiveSelectedNiches.forEach((niche, nicheKey) => {
                 nicheNames.push(niche.name);
                 allNicheKeywords.push(...niche.variations);
                 niche.variations.forEach(variation => {
@@ -2208,7 +2315,7 @@
             currentSearchResults = [...finalResults];
             
             // Create display name with niche and locations with states
-            const sessionDisplayName = `${nicheNames.join(' + ')} – ${locationDisplayNames.slice(0, 3).join(', ')}${locationDisplayNames.length > 3 ? '...' : ''}`;
+            const sessionDisplayName = `${sessionLabel ? sessionLabel + ': ' : ''}${nicheNames.join(' + ')} – ${locationDisplayNames.slice(0, 3).join(', ')}${locationDisplayNames.length > 3 ? '...' : ''}`;
             const historyEntry = {
                 sessionId: sessionId,
                 sessionNumber: searchSessionCount,
@@ -2443,6 +2550,26 @@
             }
         });
 
+        // Event delegation for Nano Banana niche buttons
+        const nanoSectionEl = document.getElementById('nano-niche-selection');
+        if (nanoSectionEl) {
+            nanoSectionEl.addEventListener('click', function(e) {
+                if (e.target.classList.contains('nano-niche-btn')) {
+                    const nicheKey = e.target.dataset.nanoNiche;
+                    toggleNanoNiche(nicheKey);
+                }
+            });
+            const toggleBtn = document.getElementById('nanoToggleBtn');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    const content = document.getElementById('nanoNicheContent');
+                    if (!content) return;
+                    const hiddenNow = content.classList.toggle('hidden');
+                    toggleBtn.textContent = hiddenNow ? 'Expand' : 'Collapse';
+                });
+            }
+        }
+
         document.getElementById('apiKey').addEventListener('blur', saveApiSettings);
         document.getElementById('searchEngineId').addEventListener('blur', saveApiSettings);
         const placesApiKeyEl = document.getElementById('placesApiKey');
@@ -2496,6 +2623,7 @@
             loadFromLocalStorage();
             initializeCountriesAndCities();
             initializeNiches();
+            initializeNanoBananaNiches();
             initializePlacesCountriesAndCities();
             initializePlacesNiches();
             updateCurrentResultsDisplay();
