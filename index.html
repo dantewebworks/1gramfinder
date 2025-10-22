@@ -44,18 +44,64 @@
       })();
     </script>
     <style>
+      :root{
+        --electric:#4BD1FF; --purple:#7A3CF1; --pink:#FF58A5; --gold:#FFC247; --lime:#39FF14; --ink:#0a0a0a;
+      }
       .glow-focus:focus-visible { box-shadow: 0 0 0 3px rgba(57,255,20,0.4); outline: none; }
-      .dark .card { background-color: #0a0a0a; border: 1px solid rgba(57,255,20,0.2); }
-      .dark .app-bg { background: radial-gradient(600px circle at 0% 0%, rgba(57,255,20,0.08), transparent 40%), radial-gradient(600px circle at 100% 100%, rgba(57,255,20,0.06), transparent 40%); }
-      .dark input, .dark select, .dark textarea { background-color: #0a0a0a; color: #39FF14; border-color: #222; }
-      .dark input:focus, .dark select:focus, .dark textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(57,255,20,0.5); }
+      /* App background aura */
+      .dark .app-bg { 
+        background:
+          radial-gradient(800px circle at 10% -10%, rgba(255,88,165,0.08), transparent 40%),
+          radial-gradient(700px circle at 100% 110%, rgba(75,209,255,0.08), transparent 40%),
+          radial-gradient(600px circle at -10% 100%, rgba(122,60,241,0.08), transparent 40%);
+      }
+      /* Gradient title */
+      .title-gradient{
+        background-image: linear-gradient(90deg, var(--electric), var(--purple), var(--pink), var(--gold));
+        -webkit-background-clip: text; background-clip:text; color:transparent;
+        text-shadow: 0 4px 30px rgba(255,88,165,0.35);
+      }
+      /* Decorative spray + money symbols overlay */
+      .graffiti-overlay{ position:absolute; inset:0; z-index:0; pointer-events:none;
+        background-image:
+          radial-gradient(120px 80px at 12% 18%, rgba(255,88,165,0.18), transparent 65%),
+          radial-gradient(160px 100px at 86% 24%, rgba(75,209,255,0.16), transparent 70%),
+          radial-gradient(140px 90px at 20% 78%, rgba(57,255,20,0.16), transparent 70%),
+          radial-gradient(160px 100px at 86% 82%, rgba(255,194,71,0.14), transparent 70%),
+          url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><text x="10" y="90" font-size="90" font-family="Arial" fill="%2339FF14">$</text></svg>');
+        background-size: auto, auto, auto, auto, 220px 220px; background-repeat:no-repeat, no-repeat, no-repeat, no-repeat, repeat; background-position: 12% 18%, 86% 24%, 20% 78%, 86% 82%, 0 0; opacity:0.18; mix-blend-mode: screen;
+      }
+      /* Premium cards and panels */
+      .dark .card, .dark .rounded-lg.shadow-md{ background-color: var(--ink); border:1px solid rgba(255,255,255,0.06); box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 24px rgba(122,60,241,0.18); position:relative; }
+      .dark .rounded-lg.shadow-md::before{ content:""; position:absolute; inset:-1px; border-radius: inherit; padding:1px; background: linear-gradient(135deg, rgba(75,209,255,0.35), rgba(122,60,241,0.32), rgba(255,88,165,0.28), rgba(255,194,71,0.25)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity:0.7; pointer-events:none; }
+      /* Inputs */
+      .dark input, .dark select, .dark textarea { background-color: var(--ink); color: var(--lime); border-color: #1f1f1f; }
+      .dark input::placeholder, .dark textarea::placeholder{ color: rgba(255,255,255,0.55); }
+      .dark input:focus, .dark select:focus, .dark textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(57,255,20,0.5), 0 0 20px rgba(57,255,20,0.25); }
+      /* Tabs */
+      .dark .tab-btn{ color: rgba(255,255,255,0.9); border-color: transparent; }
+      .dark .tab-btn:hover{ border-color: rgba(255,255,255,0.2); box-shadow: 0 0 18px rgba(75,209,255,0.25); }
+      .dark #search-tab{ color: var(--electric); border-color: var(--electric); text-shadow: 0 0 16px rgba(75,209,255,0.65); }
+      /* Primary Search button */
+      #searchBtn{ font-weight:800; letter-spacing:0.04em; }
+      .dark #searchBtn{ background-image: linear-gradient(90deg, var(--purple), var(--pink), var(--gold)); color:#0a0a0a; border:none; box-shadow: 0 12px 38px rgba(255,88,165,0.4), 0 6px 24px rgba(255,194,71,0.3); }
+      .dark #searchBtn:hover{ filter:brightness(1.08); box-shadow: 0 16px 48px rgba(255,88,165,0.55), 0 8px 28px rgba(255,194,71,0.45); }
+      /* Accent chips */
+      .dark .money-chip{ background: linear-gradient(90deg, var(--electric), var(--purple)); color:#0a0a0a; box-shadow:0 10px 26px rgba(122,60,241,0.35); }
+      /* Niche and Nano-niche buttons */
+      .dark .niche-btn, .dark .nano-niche-btn{ background-color: var(--ink); color:#e8e8e8; border:1px solid rgba(255,255,255,0.12); box-shadow:0 6px 18px rgba(122,60,241,0.25); }
+      .dark .niche-btn:hover, .dark .nano-niche-btn:hover{ border-image: linear-gradient(90deg, var(--electric), var(--purple), var(--pink)) 1; box-shadow: 0 0 16px rgba(75,209,255,0.3), 0 6px 20px rgba(255,88,165,0.25); color:#ffffff; }
+      /* Places niche buttons */
+      .dark .places-niche-buttons .places-niche-btn{ background-image: linear-gradient(90deg, #2b2b2b, #1a1a1a); color:#ffffff; border:1px solid rgba(255,255,255,0.12); box-shadow:0 6px 18px rgba(75,209,255,0.25); }
+      .dark .places-niche-buttons .places-niche-btn:hover{ filter:brightness(1.08); }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 dark:bg-black transition-colors duration-300">
-    <div class="container mx-auto px-4 py-6 max-w-7xl app-bg">
+    <div class="container mx-auto px-4 py-6 max-w-7xl app-bg relative">
+        <div class="graffiti-overlay"></div>
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-extrabold tracking-tight text-gray-800 dark:text-neon bg-clip-text">1Gram Finder</h1>
+            <h1 class="text-3xl font-extrabold tracking-tight title-gradient">1Gram Finder</h1>
             <button id="themeToggle" class="flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 dark:border-neon text-gray-700 dark:text-neon bg-white dark:bg-ink hover:shadow-neon transition-all duration-200">
                 <span class="text-sm">Dark Mode</span>
                 <span id="themeIcon" class="inline-block w-4 h-4 rounded-full bg-gray-800 dark:bg-neon"></span>
