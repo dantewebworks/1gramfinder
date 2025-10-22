@@ -88,26 +88,6 @@
                 <p class="text-xs text-gray-500 mt-3">Click niches to toggle selection (multiple allowed), then click Search to run queries</p>
             </div>
 
-            <!-- Nano Banana Niches Section -->
-            <div id="nano-niche-selection" class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-semibold">Nano Banana Niches</h2>
-                    <button id="toggleNanoNichesBtn" class="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
-                        Show/Hide
-                    </button>
-                </div>
-                <div id="nanoNichesContent" class="hidden">
-                    <div class="nano-niche-buttons flex flex-wrap gap-2 mb-3">
-                        <!-- Nano Niches will be dynamically populated here -->
-                    </div>
-                    <div id="selectedNanoNiches" class="text-sm">
-                        <span class="font-medium text-gray-700">Selected Nano Niches:</span>
-                        <span id="selectedNanoNichesList" class="text-blue-600">None</span>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-3">Click a niche to auto-run searches across selected cities</p>
-                </div>
-            </div>
-
             <!-- Search Button -->
             <div class="text-center mb-6">
                 <button id="searchBtn" class="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition duration-200 text-lg font-semibold">
@@ -453,80 +433,6 @@
         // ========================================
         // UPDATED NICHES WITH EXPANDED VARIATIONS
         // ========================================
-        // Nano Banana Niches
-        const nanoBananaNiches = {
-            soapShops: {
-                name: '🧼 Soap Shops',
-                variations: [
-                    'soap shop', 'soap business', 'handmade soap', 'natural soap brand',
-                    'organic soap company', 'soap store', 'artisanal soap', 'body soap brand',
-                    'skin care soap'
-                ]
-            },
-            candleShops: {
-                name: '🕯️ Candle Shops',
-                variations: [
-                    'candle shop', 'candle business', 'handmade candles', 'scented candles',
-                    'soy candles', 'candle brand', 'home fragrance candles', 'candle store',
-                    'luxury candles'
-                ]
-            },
-            bakeries: {
-                name: '🧁 Bakeries',
-                variations: [
-                    'bakery', 'cake shop', 'cupcake shop', 'pastry shop',
-                    'bakehouse', 'dessert shop', 'bread bakery', 'wedding cakes',
-                    'custom cakes'
-                ]
-            }
-        };
-        
-        // Nano Banana Niches object with variations
-        const nanoBananaNiches = {
-            soapShops: {
-                name: "🧼 Soap Shops",
-                variations: [
-                    "soap shop",
-                    "soap business",
-                    "handmade soap",
-                    "natural soap brand",
-                    "organic soap company",
-                    "soap store",
-                    "artisanal soap",
-                    "body soap brand",
-                    "skin care soap"
-                ]
-            },
-            candleShops: {
-                name: "🕯️ Candle Shops",
-                variations: [
-                    "candle shop",
-                    "candle business",
-                    "handmade candles",
-                    "scented candles",
-                    "soy candles",
-                    "candle brand",
-                    "home fragrance candles",
-                    "candle store",
-                    "luxury candles"
-                ]
-            },
-            bakeries: {
-                name: "🧁 Bakeries",
-                variations: [
-                    "bakery",
-                    "cake shop",
-                    "cupcake shop",
-                    "pastry shop",
-                    "bakehouse",
-                    "dessert shop",
-                    "bread bakery",
-                    "wedding cakes",
-                    "custom cakes"
-                ]
-            }
-        };
-        
         const niches = {
             barberShops: {
                 name: 'Barber Shops',
@@ -1509,91 +1415,6 @@
         // ========================================
         // DYNAMIC NICHE INITIALIZATION
         // ========================================
-        // ========================================
-        // NANO BANANA NICHES FUNCTIONS
-        // ========================================
-        function initializeNanoBananaNiches() {
-            const container = document.querySelector('.nano-niche-buttons');
-            let html = '';
-            
-            Object.entries(nanoBananaNiches).forEach(([key, niche]) => {
-                html += `
-                    <button id="${key}NanoBtn" data-nano-niche="${key}" class="nano-niche-btn bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition duration-200 text-sm">
-                        ${niche.name}
-                    </button>
-                `;
-            });
-            
-            container.innerHTML = html;
-            
-            // Add event listeners for nano niche buttons
-            document.querySelectorAll('.nano-niche-btn').forEach(button => {
-                button.addEventListener('click', handleNanoNicheClick);
-            });
-            
-            // Add event listener for toggle button
-            document.getElementById('toggleNanoNichesBtn').addEventListener('click', toggleNanoNichesSection);
-        }
-        
-        function toggleNanoNichesSection() {
-            const content = document.getElementById('nanoNichesContent');
-            content.classList.toggle('hidden');
-        }
-        
-        // Selected nano niches
-        let selectedNanoNiches = [];
-        
-        function handleNanoNicheClick(event) {
-            const nicheKey = event.target.dataset.nanoNiche;
-            const nicheBtn = document.getElementById(`${nicheKey}NanoBtn`);
-            
-            // Clear all selections first
-            document.querySelectorAll('.nano-niche-btn').forEach(btn => {
-                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                btn.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
-            });
-            
-            // Select this niche
-            nicheBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
-            nicheBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-            
-            selectedNanoNiches = [nicheKey];
-            updateSelectedNanoNichesDisplay();
-            
-            // Auto-run search with this nano niche
-            runNanoNicheSearch(nicheKey);
-        }
-        
-        function updateSelectedNanoNichesDisplay() {
-            const displayElement = document.getElementById('selectedNanoNichesList');
-            
-            if (selectedNanoNiches.length === 0) {
-                displayElement.textContent = 'None';
-                return;
-            }
-            
-            const nicheNames = selectedNanoNiches.map(key => nanoBananaNiches[key].name).join(', ');
-            displayElement.textContent = nicheNames;
-        }
-        
-        function runNanoNicheSearch(nicheKey) {
-            const selectedCities = getSelectedCities();
-            
-            if (selectedCities.length === 0) {
-                showInfoMessage('Please select at least one city before searching.', 'warning');
-                return;
-            }
-            
-            const niche = nanoBananaNiches[nicheKey];
-            const variations = niche.variations;
-            
-            // Show info message
-            showInfoMessage(`Running searches for ${niche.name} across ${selectedCities.length} cities...`, 'info');
-            
-            // Run searches for each variation
-            runSearchesForVariations(variations, selectedCities);
-        }
-        
         function initializeNiches() {
             const container = document.querySelector('.niche-buttons');
             let html = '';
@@ -2659,7 +2480,6 @@
             loadFromLocalStorage();
             initializeCountriesAndCities();
             initializeNiches();
-            initializeNanoBananaNiches();
             initializePlacesCountriesAndCities();
             initializePlacesNiches();
             updateCurrentResultsDisplay();
@@ -2670,7 +2490,6 @@
             updateSelectedPlacesNichesDisplay();
             updateSelectedCitiesCount();
             updateSelectedPlacesCitiesCount();
-            updateSelectedNanoNichesDisplay();
         });
         // Event delegation for Places niche buttons
         document.getElementById('places-niche-selection').addEventListener('click', function(e) {
