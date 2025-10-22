@@ -4,26 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1Gram Finder</title>
+    <script>
+      // Tailwind CDN config and theme extension
+      tailwind = window.tailwind || {};
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              neon: '#39FF14',
+              ink: '#0a0a0a',
+              graphite: '#111111'
+            },
+            boxShadow: {
+              neon: '0 0 8px #39FF14, 0 0 16px rgba(57,255,20,0.6)'
+            },
+            keyframes: {
+              pulseGlow: {
+                '0%, 100%': { boxShadow: '0 0 8px #39FF14, 0 0 16px rgba(57,255,20,0.6)' },
+                '50%': { boxShadow: '0 0 2px #39FF14, 0 0 8px rgba(57,255,20,0.4)' }
+              }
+            },
+            animation: {
+              pulseGlow: 'pulseGlow 2s ease-in-out infinite'
+            }
+          }
+        }
+      };
+    </script>
+    <script>
+      // Initialize theme on load using localStorage and system preference
+      (function() {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const enableDark = stored ? (stored === 'dark') : prefersDark;
+          if (enableDark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      .glow-focus:focus-visible { box-shadow: 0 0 0 3px rgba(57,255,20,0.4); outline: none; }
+      .dark .card { background-color: #0a0a0a; border: 1px solid rgba(57,255,20,0.2); }
+      .dark .app-bg { background: radial-gradient(600px circle at 0% 0%, rgba(57,255,20,0.08), transparent 40%), radial-gradient(600px circle at 100% 100%, rgba(57,255,20,0.06), transparent 40%); }
+      .dark input, .dark select, .dark textarea { background-color: #0a0a0a; color: #39FF14; border-color: #222; }
+      .dark input:focus, .dark select:focus, .dark textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(57,255,20,0.5); }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50">
-    <div class="container mx-auto px-4 py-6 max-w-7xl">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">1Gram Finder</h1>
+<body class="bg-gray-50 dark:bg-black transition-colors duration-300">
+    <div class="container mx-auto px-4 py-6 max-w-7xl app-bg">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-800 dark:text-neon bg-clip-text">1Gram Finder</h1>
+            <button id="themeToggle" class="flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 dark:border-neon text-gray-700 dark:text-neon bg-white dark:bg-ink hover:shadow-neon transition-all duration-200">
+                <span class="text-sm">Dark Mode</span>
+                <span id="themeIcon" class="inline-block w-4 h-4 rounded-full bg-gray-800 dark:bg-neon"></span>
+            </button>
+        </div>
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) {
+              toggle.addEventListener('click', () => {
+                const root = document.documentElement;
+                const isDark = root.classList.toggle('dark');
+                try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+              });
+            }
+          });
+        </script>
         
         <!-- Tab Navigation -->
-        <div class="border-b border-gray-200 mb-6">
+        <div class="border-b border-gray-200 dark:border-graphite mb-6">
             <nav class="-mb-px flex space-x-8">
-                <button onclick="switchTab('search')" id="search-tab" class="tab-btn py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+                <button onclick="switchTab('search')" id="search-tab" class="tab-btn py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 dark:border-neon dark:text-neon hover:shadow-neon">
                     Search
                 </button>
-                <button onclick="switchTab('places')" id="places-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <button onclick="switchTab('places')" id="places-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neon dark:hover:border-neon hover:shadow-neon">
                     Google Places – No Website Finder
                 </button>
-                <button onclick="switchTab('history')" id="history-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <button onclick="switchTab('history')" id="history-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neon dark:hover:border-neon hover:shadow-neon">
                     History
                 </button>
 
-                <button onclick="switchTab('settings')" id="settings-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <button onclick="switchTab('settings')" id="settings-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neon dark:hover:border-neon hover:shadow-neon">
                     Settings
                 </button>
             </nav>
@@ -110,7 +174,7 @@
 
             <!-- Search Button -->
             <div class="text-center mb-6">
-                <button id="searchBtn" class="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition duration-200 text-lg font-semibold">
+                <button id="searchBtn" class="px-8 py-3 rounded-md text-lg font-semibold border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-all duration-200 dark:bg-ink dark:text-neon dark:border-neon hover:shadow-neon">
                     Search Instagram Usernames
                 </button>
                 <p class="text-xs text-gray-500 mt-2">Click to start searching with selected niches and locations</p>
@@ -1547,7 +1611,7 @@
             
             Object.entries(niches).forEach(([key, niche]) => {
                 html += `
-                    <button id="${key}Btn" data-niche="${key}" class="niche-btn bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200 text-sm">
+                    <button id="${key}Btn" data-niche="${key}" class="niche-btn px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-all duration-200 text-sm dark:bg-ink dark:text-neon dark:border-neon hover:shadow-neon">
                         ${niche.name}
                     </button>
                 `;
@@ -1563,7 +1627,7 @@
             let html = '';
             Object.entries(nanoBananaNiches).forEach(([key, niche]) => {
                 html += `
-                    <button id="nano-${key}Btn" data-nano-niche="${key}" class="nano-niche-btn bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200 text-sm">
+                    <button id="nano-${key}Btn" data-nano-niche="${key}" class="nano-niche-btn px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-all duration-200 text-sm dark:bg-ink dark:text-neon dark:border-neon hover:shadow-neon">
                         ${niche.name}
                     </button>
                 `;
