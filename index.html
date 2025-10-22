@@ -4,136 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1Gram Finder</title>
-    <script>
-      // Tailwind CDN config and theme extension
-      tailwind = window.tailwind || {};
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              neon: '#39FF14',
-              ink: '#0a0a0a',
-              graphite: '#111111'
-            },
-            boxShadow: {
-              neon: '0 0 8px #39FF14, 0 0 16px rgba(57,255,20,0.6)'
-            },
-            keyframes: {
-              pulseGlow: {
-                '0%, 100%': { boxShadow: '0 0 8px #39FF14, 0 0 16px rgba(57,255,20,0.6)' },
-                '50%': { boxShadow: '0 0 2px #39FF14, 0 0 8px rgba(57,255,20,0.4)' }
-              }
-            },
-            animation: {
-              pulseGlow: 'pulseGlow 2s ease-in-out infinite'
-            }
-          }
-        }
-      };
-    </script>
-    <script>
-      // Initialize theme on load using localStorage and system preference
-      (function() {
-        try {
-          const stored = localStorage.getItem('theme');
-          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const enableDark = stored ? (stored === 'dark') : prefersDark;
-          if (enableDark) document.documentElement.classList.add('dark');
-        } catch (e) {}
-      })();
-    </script>
-    <style>
-      :root{
-        --electric:#4BD1FF; --purple:#7A3CF1; --pink:#FF58A5; --gold:#FFC247; --lime:#39FF14; --ink:#0a0a0a;
-      }
-      .glow-focus:focus-visible { box-shadow: 0 0 0 3px rgba(57,255,20,0.4); outline: none; }
-      /* App background aura */
-      .dark .app-bg { 
-        background:
-          radial-gradient(800px circle at 10% -10%, rgba(255,88,165,0.08), transparent 40%),
-          radial-gradient(700px circle at 100% 110%, rgba(75,209,255,0.08), transparent 40%),
-          radial-gradient(600px circle at -10% 100%, rgba(122,60,241,0.08), transparent 40%);
-      }
-      /* Gradient title */
-      .title-gradient{
-        background-image: linear-gradient(90deg, var(--electric), var(--purple), var(--pink), var(--gold));
-        -webkit-background-clip: text; background-clip:text; color:transparent;
-        text-shadow: 0 4px 30px rgba(255,88,165,0.35);
-      }
-      /* Decorative spray + money symbols overlay */
-      .graffiti-overlay{ position:absolute; inset:0; z-index:0; pointer-events:none;
-        background-image:
-          radial-gradient(120px 80px at 12% 18%, rgba(255,88,165,0.18), transparent 65%),
-          radial-gradient(160px 100px at 86% 24%, rgba(75,209,255,0.16), transparent 70%),
-          radial-gradient(140px 90px at 20% 78%, rgba(57,255,20,0.16), transparent 70%),
-          radial-gradient(160px 100px at 86% 82%, rgba(255,194,71,0.14), transparent 70%),
-          url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><text x="10" y="90" font-size="90" font-family="Arial" fill="%2339FF14">$</text></svg>');
-        background-size: auto, auto, auto, auto, 220px 220px; background-repeat:no-repeat, no-repeat, no-repeat, no-repeat, repeat; background-position: 12% 18%, 86% 24%, 20% 78%, 86% 82%, 0 0; opacity:0.18; mix-blend-mode: screen;
-      }
-      /* Premium cards and panels */
-      .dark .card, .dark .rounded-lg.shadow-md{ background-color: var(--ink); border:1px solid rgba(255,255,255,0.06); box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 24px rgba(122,60,241,0.18); position:relative; }
-      .dark .rounded-lg.shadow-md::before{ content:""; position:absolute; inset:-1px; border-radius: inherit; padding:1px; background: linear-gradient(135deg, rgba(75,209,255,0.35), rgba(122,60,241,0.32), rgba(255,88,165,0.28), rgba(255,194,71,0.25)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity:0.7; pointer-events:none; }
-      /* Inputs */
-      .dark input, .dark select, .dark textarea { background-color: var(--ink); color: var(--lime); border-color: #1f1f1f; }
-      .dark input::placeholder, .dark textarea::placeholder{ color: rgba(255,255,255,0.55); }
-      .dark input:focus, .dark select:focus, .dark textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(57,255,20,0.5), 0 0 20px rgba(57,255,20,0.25); }
-      /* Tabs */
-      .dark .tab-btn{ color: rgba(255,255,255,0.9); border-color: transparent; }
-      .dark .tab-btn:hover{ border-color: rgba(255,255,255,0.2); box-shadow: 0 0 18px rgba(75,209,255,0.25); }
-      .dark #search-tab{ color: var(--electric); border-color: var(--electric); text-shadow: 0 0 16px rgba(75,209,255,0.65); }
-      /* Primary Search button */
-      #searchBtn{ font-weight:800; letter-spacing:0.04em; }
-      .dark #searchBtn{ background-image: linear-gradient(90deg, var(--purple), var(--pink), var(--gold)); color:#0a0a0a; border:none; box-shadow: 0 12px 38px rgba(255,88,165,0.4), 0 6px 24px rgba(255,194,71,0.3); }
-      .dark #searchBtn:hover{ filter:brightness(1.08); box-shadow: 0 16px 48px rgba(255,88,165,0.55), 0 8px 28px rgba(255,194,71,0.45); }
-      /* Accent chips */
-      .dark .money-chip{ background: linear-gradient(90deg, var(--electric), var(--purple)); color:#0a0a0a; box-shadow:0 10px 26px rgba(122,60,241,0.35); }
-      /* Niche and Nano-niche buttons */
-      .dark .niche-btn, .dark .nano-niche-btn{ background-color: var(--ink); color:#e8e8e8; border:1px solid rgba(255,255,255,0.12); box-shadow:0 6px 18px rgba(122,60,241,0.25); }
-      .dark .niche-btn:hover, .dark .nano-niche-btn:hover{ border-image: linear-gradient(90deg, var(--electric), var(--purple), var(--pink)) 1; box-shadow: 0 0 16px rgba(75,209,255,0.3), 0 6px 20px rgba(255,88,165,0.25); color:#ffffff; }
-      /* Places niche buttons */
-      .dark .places-niche-buttons .places-niche-btn{ background-image: linear-gradient(90deg, #2b2b2b, #1a1a1a); color:#ffffff; border:1px solid rgba(255,255,255,0.12); box-shadow:0 6px 18px rgba(75,209,255,0.25); }
-      .dark .places-niche-buttons .places-niche-btn:hover{ filter:brightness(1.08); }
-    </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 dark:bg-black transition-colors duration-300">
-    <div class="container mx-auto px-4 py-6 max-w-7xl app-bg relative">
-        <div class="graffiti-overlay"></div>
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-extrabold tracking-tight title-gradient">1Gram Finder</h1>
-            <button id="themeToggle" class="flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 dark:border-neon text-gray-700 dark:text-neon bg-white dark:bg-ink hover:shadow-neon transition-all duration-200">
-                <span class="text-sm">Dark Mode</span>
-                <span id="themeIcon" class="inline-block w-4 h-4 rounded-full bg-gray-800 dark:bg-neon"></span>
-            </button>
-        </div>
-        <script>
-          document.addEventListener('DOMContentLoaded', () => {
-            const toggle = document.getElementById('themeToggle');
-            if (toggle) {
-              toggle.addEventListener('click', () => {
-                const root = document.documentElement;
-                const isDark = root.classList.toggle('dark');
-                try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
-              });
-            }
-          });
-        </script>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">1Gram Finder</h1>
         
         <!-- Tab Navigation -->
-        <div class="border-b border-gray-200 dark:border-graphite mb-6">
+        <div class="border-b border-gray-200 mb-6">
             <nav class="-mb-px flex space-x-8">
-                <button onclick="switchTab('search')" id="search-tab" class="tab-btn py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 dark:border-neon dark:text-neon hover:shadow-neon">
+                <button onclick="switchTab('search')" id="search-tab" class="tab-btn py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
                     Search
                 </button>
-                <button onclick="switchTab('places')" id="places-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neon dark:hover:border-neon hover:shadow-neon">
+                <button onclick="switchTab('places')" id="places-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     Google Places – No Website Finder
                 </button>
-                <button onclick="switchTab('history')" id="history-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neon dark:hover:border-neon hover:shadow-neon">
+                <button onclick="switchTab('history')" id="history-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     History
                 </button>
 
-                <button onclick="switchTab('settings')" id="settings-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neon dark:hover:border-neon hover:shadow-neon">
+                <button onclick="switchTab('settings')" id="settings-tab" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     Settings
                 </button>
             </nav>
@@ -198,29 +88,9 @@
                 <p class="text-xs text-gray-500 mt-3">Click niches to toggle selection (multiple allowed), then click Search to run queries</p>
             </div>
 
-            <!-- Nano Banana Niches -->
-            <div id="nano-niche-selection" class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">Nano Banana Niches</h2>
-                    <button id="nanoToggleBtn" class="text-xs bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">
-                        Collapse
-                    </button>
-                </div>
-                <div id="nanoNicheContent">
-                    <div class="nano-niche-buttons flex flex-wrap gap-2 mb-3">
-                        <!-- Nano Banana niches will be dynamically populated here -->
-                    </div>
-                    <div id="selectedNanoNiches" class="text-sm">
-                        <span class="font-medium text-gray-700">Selected Nano Niches:</span>
-                        <span id="selectedNanoNichesList" class="text-blue-600">None</span>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-3">Click a niche to auto-run searches across selected cities</p>
-                </div>
-            </div>
-
             <!-- Search Button -->
             <div class="text-center mb-6">
-                <button id="searchBtn" class="px-8 py-3 rounded-md text-lg font-semibold border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-all duration-200 dark:bg-ink dark:text-neon dark:border-neon hover:shadow-neon">
+                <button id="searchBtn" class="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition duration-200 text-lg font-semibold">
                     Search Instagram Usernames
                 </button>
                 <p class="text-xs text-gray-500 mt-2">Click to start searching with selected niches and locations</p>
@@ -1480,22 +1350,6 @@
                     'Notary Firm', 'Notary Group', 'Notary Works',
                     'Notary Signing Service', 'Notary Mobile', 'Notary Public Service'
                 ]
-            },
-            soapShops: {
-                name: 'Soap Shops',
-                variations: [
-                    'soapshop', 'handmadesoap', 'artisansoap', 'naturalsoap', 'organicsoap',
-                    'soapcompany', 'soapco', 'bathandbody', 'soapboutique', 'soapbar',
-                    'soapsupplier', 'handcraftedsoap'
-                ]
-            },
-            candleShops: {
-                name: 'Candle Shops',
-                variations: [
-                    'candleshop', 'handmadecandles', 'soycandles', 'scentedcandles', 'candleco',
-                    'candlecompany', 'candlebusiness', 'candleboutique', 'candlemaker', 'homefragrance',
-                    'luxurycandles', 'aromatherapycandles'
-                ]
             }
         };
 
@@ -1557,96 +1411,6 @@
         let searchSessionCount = 0;
         let searchHistoryWithResults = []; // Holds all historical searches
         let selectedNiches = new Map();
-        let selectedNanoNiches = new Map();
-
-        // Nano Banana Niches dataset
-        const nanoBananaNiches = {
-            soapShops: {
-                name: 'Soap Shops',
-                variations: [
-                    'soap shop','soap business','handmade soap','natural soap brand','organic soap company',
-                    'soap store','artisanal soap','body soap brand','skin care soap'
-                ]
-            },
-            candleShops: {
-                name: 'Candle Shops',
-                variations: [
-                    'candle shop','candle business','handmade candles','scented candles','soy candles',
-                    'candle brand','home fragrance candles','candle store','luxury candles'
-                ]
-            },
-            bakeries: {
-                name: 'Bakeries',
-                variations: [
-                    'bakery','cake shop','cupcake shop','pastry shop','bakehouse',
-                    'dessert shop','bread bakery','wedding cakes','custom cakes'
-                ]
-            },
-            cakeDecorators: {
-                name: 'Cake Decorators',
-                variations: [
-                    'cake decorator','cake decorators','custom cakes','birthday cakes','wedding cakes',
-                    'cake artist','cake studio','cake shop','cake designer','luxury cakes',
-                    'dessert studio','cupcake shop','fondant cakes','buttercream cakes','cake boutique',
-                    'bespoke cakes','cake design','cake bakery','cake maker'
-                ]
-            },
-            iceCreamShops: {
-                name: 'Ice Cream Shops',
-                variations: [
-                    'ice cream shop','ice cream parlour','ice cream parlor','gelato shop','frozen yogurt',
-                    'dessert shop','milkshake bar','soft serve','artisanal ice cream','creamery',
-                    'popsicle shop','ice creamery','gelateria','ice cream cafe','ice cream truck',
-                    'ice cream bar','handmade ice cream','rolled ice cream'
-                ]
-            },
-            artisanChocolateMakers: {
-                name: 'Artisan Chocolate Makers',
-                variations: [
-                    'Chocolate Maker','Handmade Chocolates','Craft Chocolate','Chocolate Studio','Chocolate Artisan',
-                    'Artisan Chocolatier','Bean to Bar','Chocolate Boutique','Chocolate Workshop','Luxury Chocolate',
-                    'Chocolate Factory','Chocolate Co'
-                ]
-            },
-            macaronShops: {
-                name: 'Macaron Shops',
-                variations: [
-                    'Macaron Shop','French Macarons','Macaron Bakery','Macaron Boutique','Macaron Studio',
-                    'Macaron Patisserie','Macaron Cafe','Macaron Dessert'
-                ]
-            },
-            gourmetCheeseShops: {
-                name: 'Gourmet Cheese Shops',
-                variations: [
-                    'Cheese Shop','Artisan Cheese','Gourmet Cheese','Cheese Boutique','Cheese Studio',
-                    'Cheesemonger','Fromagerie','Cheese Market','Cheese Bar','Cheese Store'
-                ]
-            },
-            kombuchaBreweries: {
-                name: 'Kombucha Breweries',
-                variations: [
-                    'Kombucha Brewery','Craft Kombucha','Kombucha Brew','Artisan Kombucha','Kombucha Taproom',
-                    'Kombucha Company','Kombucha Co','Small Batch Kombucha','Local Kombucha','Kombucha Bar',
-                    'Organic Kombucha','Raw Kombucha'
-                ]
-            },
-            craftCoffeeRoasters: {
-                name: 'Craft Coffee Roasters',
-                variations: [
-                    'Coffee Roaster','Craft Coffee Roasters','Artisan Coffee Roasters','Specialty Coffee Roasters','Micro Roasters',
-                    'Third Wave Coffee','Roastery','Coffee Roastery','Small Batch Coffee','Hand Roasted Coffee',
-                    'Single Origin Coffee','Direct Trade Coffee'
-                ]
-            },
-            juiceBarsSmoothieBoutiques: {
-                name: 'Juice Bars & Smoothie Boutiques',
-                variations: [
-                    'Juice Bar','Cold Pressed Juice','Smoothie Bar','Smoothie Boutique','Juice Boutique',
-                    'Acai Bowl','Healthy Juice','Fresh Juice','Wellness Bar','Detox Juice',
-                    'Juice Cleanse','Plant-Based Drinks'
-                ]
-            }
-        };
 
         // ========================================
         // DYNAMIC NICHE INITIALIZATION
@@ -1657,27 +1421,12 @@
             
             Object.entries(niches).forEach(([key, niche]) => {
                 html += `
-                    <button id="${key}Btn" data-niche="${key}" class="niche-btn px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-all duration-200 text-sm dark:bg-ink dark:text-neon dark:border-neon hover:shadow-neon">
+                    <button id="${key}Btn" data-niche="${key}" class="niche-btn bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200 text-sm">
                         ${niche.name}
                     </button>
                 `;
             });
             
-            container.innerHTML = html;
-        }
-
-        // Initialize Nano Banana niches
-        function initializeNanoBananaNiches() {
-            const container = document.querySelector('.nano-niche-buttons');
-            if (!container) return;
-            let html = '';
-            Object.entries(nanoBananaNiches).forEach(([key, niche]) => {
-                html += `
-                    <button id="nano-${key}Btn" data-nano-niche="${key}" class="nano-niche-btn px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-all duration-200 text-sm dark:bg-ink dark:text-neon dark:border-neon hover:shadow-neon">
-                        ${niche.name}
-                    </button>
-                `;
-            });
             container.innerHTML = html;
         }
 
@@ -1980,60 +1729,13 @@
         function updateSelectedNichesDisplay() {
             const selectedNichesList = document.getElementById('selectedNichesList');
             
-            const names = new Set();
-            selectedNiches.forEach(n => names.add(n.name));
-            if (typeof selectedNanoNiches !== 'undefined' && selectedNanoNiches instanceof Map) {
-                selectedNanoNiches.forEach(n => names.add(n.name));
-            }
-            
-            if (names.size === 0) {
+            if (selectedNiches.size === 0) {
                 selectedNichesList.textContent = 'None';
                 selectedNichesList.className = 'text-gray-500';
             } else {
-                selectedNichesList.textContent = Array.from(names).join(', ');
+                const nicheNames = Array.from(selectedNiches.values()).map(n => n.name);
+                selectedNichesList.textContent = nicheNames.join(', ');
                 selectedNichesList.className = 'text-blue-600 font-medium';
-            }
-        }
-
-        // Nano Banana toggle functionality
-        function toggleNanoNiche(nicheKey) {
-            const niche = nanoBananaNiches[nicheKey];
-            if (!niche) return;
-
-            const button = document.querySelector(`[data-nano-niche="${nicheKey}"]`);
-
-            if (selectedNanoNiches.has(nicheKey)) {
-                selectedNanoNiches.delete(nicheKey);
-                if (button) {
-                    button.classList.remove('bg-blue-600', 'ring-2', 'ring-blue-400');
-                    button.classList.add('bg-gray-600');
-                }
-                console.log(`Deselected nano niche: ${niche.name}`);
-            } else {
-                selectedNanoNiches.set(nicheKey, niche);
-                if (button) {
-                    button.classList.remove('bg-gray-600');
-                    button.classList.add('bg-blue-600', 'ring-2', 'ring-blue-400');
-                }
-                console.log(`Selected nano niche: ${niche.name}`);
-                // Auto-run searches using only selected Nano Banana niches
-                performSearches({ nicheSetOverride: selectedNanoNiches, sessionLabel: 'Nano Banana Niches' });
-            }
-
-            updateSelectedNanoNichesDisplay();
-        }
-
-        function updateSelectedNanoNichesDisplay() {
-            const listEl = document.getElementById('selectedNanoNichesList');
-            if (!listEl) return;
-
-            if (selectedNanoNiches.size === 0) {
-                listEl.textContent = 'None';
-                listEl.className = 'text-gray-500';
-            } else {
-                const nicheNames = Array.from(selectedNanoNiches.values()).map(n => n.name);
-                listEl.textContent = nicheNames.join(', ');
-                listEl.className = 'text-blue-600 font-medium';
             }
         }
 
@@ -2351,7 +2053,7 @@
         // ========================================
         // MAIN SEARCH FUNCTION
         // ========================================
-        async function performSearches(options = {}) {
+        async function performSearches() {
             const apiKey = document.getElementById('apiKey').value.trim();
             const cx = document.getElementById('searchEngineId').value.trim();
             
@@ -2363,24 +2065,7 @@
             
             saveApiSettings();
             
-            const nicheSetOverride = options.nicheSetOverride || null;
-            const sessionLabel = options.sessionLabel || null;
-            
-            // Use override if provided; otherwise, merge both main and nano selections
-            let effectiveSelectedNiches = nicheSetOverride || null;
-            if (!effectiveSelectedNiches) {
-                effectiveSelectedNiches = new Map();
-                selectedNiches.forEach((val, key) => effectiveSelectedNiches.set(key, val));
-                if (typeof selectedNanoNiches !== 'undefined' && selectedNanoNiches instanceof Map) {
-                    selectedNanoNiches.forEach((val, key) => {
-                        if (!effectiveSelectedNiches.has(key)) {
-                            effectiveSelectedNiches.set(key, val);
-                        }
-                    });
-                }
-            }
-            
-            if (effectiveSelectedNiches.size === 0) {
+            if (selectedNiches.size === 0) {
                 alert('Please select at least one niche');
                 return;
             }
@@ -2417,7 +2102,7 @@
             const locationDisplayNames = [];
             const allNicheKeywords = [];
             
-            effectiveSelectedNiches.forEach((niche, nicheKey) => {
+            selectedNiches.forEach((niche, nicheKey) => {
                 nicheNames.push(niche.name);
                 allNicheKeywords.push(...niche.variations);
                 niche.variations.forEach(variation => {
@@ -2472,7 +2157,7 @@
                         const result = {
                             username: info.username,
                             businessName: info.businessName,
-                            url: `https://instagram.com/${info.username}`,
+                            url: `https://1gramfinder.vercel.app/`,
                             query: query
                         };
                         
@@ -2507,7 +2192,7 @@
             currentSearchResults = [...finalResults];
             
             // Create display name with niche and locations with states
-            const sessionDisplayName = `${sessionLabel ? sessionLabel + ': ' : ''}${nicheNames.join(' + ')} – ${locationDisplayNames.slice(0, 3).join(', ')}${locationDisplayNames.length > 3 ? '...' : ''}`;
+            const sessionDisplayName = `${nicheNames.join(' + ')} – ${locationDisplayNames.slice(0, 3).join(', ')}${locationDisplayNames.length > 3 ? '...' : ''}`;
             const historyEntry = {
                 sessionId: sessionId,
                 sessionNumber: searchSessionCount,
@@ -2742,26 +2427,6 @@
             }
         });
 
-        // Event delegation for Nano Banana niche buttons
-        const nanoSectionEl = document.getElementById('nano-niche-selection');
-        if (nanoSectionEl) {
-            nanoSectionEl.addEventListener('click', function(e) {
-                if (e.target.classList.contains('nano-niche-btn')) {
-                    const nicheKey = e.target.dataset.nanoNiche;
-                    toggleNanoNiche(nicheKey);
-                }
-            });
-            const toggleBtn = document.getElementById('nanoToggleBtn');
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', () => {
-                    const content = document.getElementById('nanoNicheContent');
-                    if (!content) return;
-                    const hiddenNow = content.classList.toggle('hidden');
-                    toggleBtn.textContent = hiddenNow ? 'Expand' : 'Collapse';
-                });
-            }
-        }
-
         document.getElementById('apiKey').addEventListener('blur', saveApiSettings);
         document.getElementById('searchEngineId').addEventListener('blur', saveApiSettings);
         const placesApiKeyEl = document.getElementById('placesApiKey');
@@ -2815,7 +2480,6 @@
             loadFromLocalStorage();
             initializeCountriesAndCities();
             initializeNiches();
-            initializeNanoBananaNiches();
             initializePlacesCountriesAndCities();
             initializePlacesNiches();
             updateCurrentResultsDisplay();
