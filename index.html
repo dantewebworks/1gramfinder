@@ -106,6 +106,24 @@
                 </div>
             </div>
 
+            <!-- Dante Designz (Music Business) Section -->
+            <div id="dante-niche-selection" class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold">Dante Designz (Music Business)</h2>
+                    <button id="danteToggleBtn" class="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Show/Hide</button>
+                </div>
+                <div id="danteNicheContent" class="hidden">
+                    <div class="dante-niche-buttons flex flex-wrap gap-2 mb-3">
+                        <!-- Dante Designz niches will be dynamically populated here -->
+                    </div>
+                    <div id="selectedDanteNiches" class="text-sm">
+                        <span class="font-medium text-gray-700">Selected Dante Designz Niches:</span>
+                        <span id="selectedDanteNichesList" class="text-blue-600">None</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">Click a niche to auto-run searches across selected cities</p>
+                </div>
+            </div>
+
             <!-- Search Button -->
             <div class="text-center mb-6">
                 <button id="searchBtn" class="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition duration-200 text-lg font-semibold">
@@ -810,6 +828,41 @@
                      'Custom seasonal gifts'
                  ]
              }
+         };
+
+         const danteDesignzNiches = {
+            christianRappers: {
+                name: 'Christian Rappers',
+                variations: [
+                    'Christian rapper',
+                    'faith based rapper',
+                    'gospel rapper',
+                    'holy hip hop artist',
+                    'Christian hip hop artist',
+                    'CHH artist',
+                    'Christian trap artist',
+                    'Christian rap musician',
+                    'Christian lyricist',
+                    'Christian emcee',
+                    'Christian hip hop ministry',
+                    'gospel rap musician',
+                    'Christian rap artist',
+                    'Christian hip hop influencer',
+                    'faith rap movement'
+                ]
+            },
+            gospelArtists: {
+                name: 'Gospel Artists',
+                variations: [
+                    'Gospel Artist',
+                    'Gospel Singer',
+                    'Christian Gospel Artist',
+                    'Worship Singer',
+                    'Gospel Musician',
+                    'Faith-Based Music Artist',
+                    'Gospel Performer'
+                ]
+            }
          };
 
          const niches = {
@@ -1791,6 +1844,7 @@
         let searchHistoryWithResults = []; // Holds all historical searches
         let selectedNiches = new Map();
         let selectedNanoNiches = new Map();
+        let selectedDanteNiches = new Map();
 
         // ========================================
         // DYNAMIC NICHE INITIALIZATION
@@ -1817,6 +1871,20 @@
             Object.entries(nanoBananaNiches).forEach(([key, niche]) => {
                 html += `
                     <button id="nano-${key}Btn" data-nano-niche="${key}" class="nano-niche-btn bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition duration-200 text-sm">
+                        ${niche.name}
+                    </button>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function initializeDanteDesignzNiches() {
+            const container = document.querySelector('.dante-niche-buttons');
+            if (!container) return;
+            let html = '';
+            Object.entries(danteDesignzNiches).forEach(([key, niche]) => {
+                html += `
+                    <button id="dante-${key}Btn" data-dante-niche="${key}" class="dante-niche-btn bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition duration-200 text-sm">
                         ${niche.name}
                     </button>
                 `;
@@ -2128,6 +2196,9 @@
             if (typeof selectedNanoNiches !== 'undefined' && selectedNanoNiches instanceof Map) {
                 selectedNanoNiches.forEach(n => names.add(n.name));
             }
+            if (typeof selectedDanteNiches !== 'undefined' && selectedDanteNiches instanceof Map) {
+                selectedDanteNiches.forEach(n => names.add(n.name));
+            }
             
             if (names.size === 0) {
                 selectedNichesList.textContent = 'None';
@@ -2174,6 +2245,46 @@
                 return;
             }
             const names = Array.from(selectedNanoNiches.values()).map(n => n.name);
+            listEl.textContent = names.join(', ');
+            listEl.className = 'text-blue-600 font-medium';
+        }
+
+        function toggleDanteNiche(nicheKey) {
+            const niche = danteDesignzNiches[nicheKey];
+            if (!niche) return;
+
+            const button = document.querySelector(`[data-dante-niche="${nicheKey}"]`);
+
+            if (selectedDanteNiches.has(nicheKey)) {
+                selectedDanteNiches.delete(nicheKey);
+                if (button) {
+                    button.classList.remove('bg-blue-600', 'ring-2', 'ring-blue-400');
+                    button.classList.add('bg-gray-600');
+                }
+                console.log(`Deselected Dante niche: ${niche.name}`);
+            } else {
+                selectedDanteNiches.set(nicheKey, niche);
+                if (button) {
+                    button.classList.remove('bg-gray-600');
+                    button.classList.add('bg-blue-600', 'ring-2', 'ring-blue-400');
+                }
+                console.log(`Selected Dante niche: ${niche.name}`);
+                // Auto-run searches using only selected Dante Designz niches
+                performSearches({ nicheSetOverride: selectedDanteNiches, sessionLabel: 'Dante Designz (Music Business)' });
+            }
+
+            updateSelectedDanteNichesDisplay();
+        }
+
+        function updateSelectedDanteNichesDisplay() {
+            const listEl = document.getElementById('selectedDanteNichesList');
+            if (!listEl) return;
+            if (selectedDanteNiches.size === 0) {
+                listEl.textContent = 'None';
+                listEl.className = 'text-gray-500';
+                return;
+            }
+            const names = Array.from(selectedDanteNiches.values()).map(n => n.name);
             listEl.textContent = names.join(', ');
             listEl.className = 'text-blue-600 font-medium';
         }
@@ -2512,6 +2623,13 @@
                 selectedNiches.forEach((val, key) => effectiveSelectedNiches.set(key, val));
                 if (typeof selectedNanoNiches !== 'undefined' && selectedNanoNiches instanceof Map) {
                     selectedNanoNiches.forEach((val, key) => {
+                        if (!effectiveSelectedNiches.has(key)) {
+                            effectiveSelectedNiches.set(key, val);
+                        }
+                    });
+                }
+                if (typeof selectedDanteNiches !== 'undefined' && selectedDanteNiches instanceof Map) {
+                    selectedDanteNiches.forEach((val, key) => {
                         if (!effectiveSelectedNiches.has(key)) {
                             effectiveSelectedNiches.set(key, val);
                         }
@@ -2901,6 +3019,25 @@
             }
         }
 
+        const danteSectionEl = document.getElementById('dante-niche-selection');
+        if (danteSectionEl) {
+            danteSectionEl.addEventListener('click', function(e) {
+                if (e.target.classList.contains('dante-niche-btn')) {
+                    const nicheKey = e.target.dataset.danteNiche;
+                    toggleDanteNiche(nicheKey);
+                }
+            });
+            const danteToggleBtn = document.getElementById('danteToggleBtn');
+            if (danteToggleBtn) {
+                danteToggleBtn.addEventListener('click', () => {
+                    const content = document.getElementById('danteNicheContent');
+                    if (!content) return;
+                    const hiddenNow = content.classList.toggle('hidden');
+                    danteToggleBtn.textContent = hiddenNow ? 'Show' : 'Hide';
+                });
+            }
+        }
+
         document.getElementById('apiKey').addEventListener('blur', saveApiSettings);
         document.getElementById('searchEngineId').addEventListener('blur', saveApiSettings);
         const placesApiKeyEl = document.getElementById('placesApiKey');
@@ -2955,6 +3092,7 @@
             initializeCountriesAndCities();
             initializeNiches();
             initializeNanoBananaNiches();
+            initializeDanteDesignzNiches();
             initializePlacesCountriesAndCities();
             initializePlacesNiches();
             updateCurrentResultsDisplay();
@@ -2963,6 +3101,7 @@
             updatePlacesLimitStatus();
             updateSelectedNichesDisplay();
             updateSelectedNanoNichesDisplay();
+            updateSelectedDanteNichesDisplay();
             updateSelectedPlacesNichesDisplay();
             updateSelectedCitiesCount();
             updateSelectedPlacesCitiesCount();
